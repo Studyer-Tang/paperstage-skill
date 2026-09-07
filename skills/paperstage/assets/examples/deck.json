@@ -1,0 +1,75 @@
+{
+  "title": "Synthetic research example",
+  "transition": "fade",
+  "theme": {
+    "fontFace": "Arial",
+    "footer": "Synthetic example. Not a research finding."
+  },
+  "sources": [
+    {
+      "id": "demo-1",
+      "document": "Synthetic fixture",
+      "locator": "Table 1",
+      "text": "Illustrative scores only: Baseline 60, Variant 72. These are made-up test values, not experimental evidence."
+    }
+  ],
+  "slides": [
+    {
+      "id": "result",
+      "title": "Illustrative comparison",
+      "sourceIds": [
+        "demo-1"
+      ],
+      "notes": "This example tests editable chart export. It supports no scientific conclusion.",
+      "elements": [
+        {
+          "id": "title",
+          "type": "text",
+          "x": 0.6,
+          "y": 0.6,
+          "w": 12,
+          "h": 0.7,
+          "text": "Illustrative comparison",
+          "size": 34,
+          "bold": true
+        },
+        {
+          "id": "chart",
+          "type": "chart",
+          "x": 0.6,
+          "y": 1.8,
+          "w": 8,
+          "h": 4.5,
+          "chartType": "bar",
+          "labels": [
+            "Baseline",
+            "Variant"
+          ],
+          "series": [
+            {
+              "name": "Synthetic score",
+              "values": [
+                60,
+                72
+              ]
+            }
+          ],
+          "unit": "Illustrative score",
+          "sourceIds": [
+            "demo-1"
+          ]
+        },
+        {
+          "id": "comment",
+          "type": "text",
+          "x": 9,
+          "y": 2,
+          "w": 3.6,
+          "h": 2,
+          "text": "Synthetic values demonstrate an editable chart. They are not research findings.",
+          "size": 22
+        }
+      ]
+    }
+  ]
+}

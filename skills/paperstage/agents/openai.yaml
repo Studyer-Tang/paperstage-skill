@@ -1,0 +1,4 @@
+interface:
+  display_name: "PaperStage"
+  short_description: "Evidence-grounded academic slides with local PPTX tools"
+  default_prompt: "Use $paperstage to turn my research material into an editable presentation using the supplied institutional design."

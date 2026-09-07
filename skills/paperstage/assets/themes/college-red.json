@@ -1,0 +1,14 @@
+{
+  "name": "College red (generic, unofficial)",
+  "institution": "",
+  "fontFace": "Arial",
+  "primary": "#8A1738",
+  "ink": "#251B21",
+  "background": "#FFFFFF",
+  "chartColors": [
+    "#8A1738",
+    "#6B768E",
+    "#A07C3E"
+  ],
+  "footer": ""
+}

@@ -1,0 +1,14 @@
+{
+  "name": "Academic blue (generic, unofficial)",
+  "institution": "",
+  "fontFace": "Arial",
+  "primary": "#244CCB",
+  "ink": "#1B2434",
+  "background": "#FFFFFF",
+  "chartColors": [
+    "#244CCB",
+    "#66816C",
+    "#B76642"
+  ],
+  "footer": ""
+}

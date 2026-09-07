@@ -1,0 +1,10 @@
+{
+  "name": "paperstage-skill",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "npm --prefix skills/paperstage/scripts test",
+    "check": "npm --prefix skills/paperstage/scripts run check"
+  }
+}
