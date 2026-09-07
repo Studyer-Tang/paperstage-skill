@@ -12,6 +12,8 @@ For idea documents, distinguish proposed experiments and expected mechanisms fro
 ## Storyboard
 Write a short table with slide purpose, claim/topic, source IDs, evidence visual, spoken explanation and approximate time. This is a planning artifact, not slide copy.
 
+Include section membership/question, academic composition, equation representation and reveal sequence where relevant. Separate design-reference IDs from scientific-source IDs: another field's beautiful slide is not evidence for this paper. The optional machine-readable contract is in [plan-check.md](plan-check.md).
+
 Select a narrative suitable to the talk, not a mandatory IMRaD outline. A proof talk may center on an obstruction and construction. A proposal needs feasibility and decisive tests. A short seminar may explain only one result well.
 
 Keep important qualifications on the same slide as the claim they constrain. Put detailed derivations and full source passages in notes if the audience does not need them on-screen. Preserve essential requested material even under a tight slide count.

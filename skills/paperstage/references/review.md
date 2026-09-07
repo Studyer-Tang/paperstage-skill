@@ -1,5 +1,18 @@
 # Review gate
 
+## Academic review before export
+
+- Can the audience locate the research question, definitions, method/construction, evidence and limitations? Does each section have a concrete purpose?
+- Inspect formula fractions, brackets, limits, accents, baselines and aligned relations. Spaced Unicode simulations are not accepted merely because there is no overflow.
+- Do diagrams explain actual scientific objects? Check symbol/label/color correspondence; remove unrelated scientific-looking art.
+- Compare the sample to the academic reference: hierarchy, density, equation/model balance, footnotes and transitions. A palette match is insufficient.
+- Check for repetitive title-plus-text skeletons, chapter posters and bullet density. Repetition is appropriate for progressive proofs and controlled comparisons; do not impose layout quotas.
+- Does the static version retain the assumptions and evidence used by staged disclosure? A fade alone is not a designed explanation.
+
+## Final file checks
+
+For layout refinement, check equation/commentary grouping, unused side space, independently centered derivation rows, captions touching tall delimiters and repeated detached formula labels. Use [layout-refinement.md](layout-refinement.md) when these appear. For vector mathematics, inspect vector preservation in the exported package as well as the rendering; keep TeX source and distinguish fidelity from native editing.
+
 1. Reopen the source ledger and challenge each consequential claim: does the cited passage actually support the wording? Check units, definitions, signs, baselines and uncertainty.
 2. Run JSON validation and inspect the exported PPTX. Resolve errors. Explain or fix warnings; never treat a clean heuristic report as a guarantee.
 3. Render the exported PPTX using an available trusted renderer. Inspect every page at presentation size and as a contact sheet. Check title wrapping, font substitution, clipping, accidental overlaps, chart labels, logo proportions, notes/source leakage, and visible footnotes.

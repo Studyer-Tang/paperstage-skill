@@ -1,4 +1,4 @@
 interface:
-  display_name: "PaperStage"
-  short_description: "Evidence-grounded academic slides with local PPTX tools"
-  default_prompt: "Use $paperstage to turn my research material into an editable presentation using the supplied institutional design."
+  display_name: "PaperStage Academic"
+  short_description: "Academic layouts with LaTeX math and source-grounded claims"
+  default_prompt: "Use $paperstage to build an academic presentation from my paper, with LaTeX-source equations, carefully aligned explanations, and source-grounded claims."
