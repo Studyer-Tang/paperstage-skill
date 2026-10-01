@@ -1,0 +1,116 @@
+{
+  "title": "样本均值与估计误差",
+  "course": "统计学 · 中文排版样例",
+  "fontFace": "Noto Sans CJK SC",
+  "sources": [
+    {
+      "id": "authored-example",
+      "document": "PaperStage 原创教学算例",
+      "locator": "抽样假设与解析计算",
+      "text": "设观测独立同分布，具有共同均值 mu 和正有限方差 sigma squared。样本均值的期望是 mu，方差是 sigma squared/n。样本均值加1的偏差为1，方差不变。取 sigma squared=4,n=4 时，两种估计量的方差均为1，均方误差分别为1与2。所有数字来自给定模型的精确计算，不是实验结果。"
+    }
+  ],
+  "slides": [
+    {
+      "id": "question",
+      "title": "从总体问题到样本估计",
+      "layout": "columns",
+      "lead": "研究总体均值时，我们通常只能观察有限样本。首先明确目标参数与抽样条件，再讨论估计误差。",
+      "left": [
+        { "type": "heading", "text": "构造估计量" },
+        {
+          "type": "bullets",
+          "items": [
+            "目标是总体均值，估计量由实际样本计算。",
+            "使用样本均值（sample mean）汇总观测。",
+            "说明独立性、共同分布与有限方差条件。"
+          ]
+        }
+      ],
+      "right": [
+        { "type": "heading", "text": "解释估计误差" },
+        {
+          "type": "bullets",
+          "items": [
+            "偏差反映估计是否系统地偏离目标。",
+            "方差反映重复抽样下估计量的波动。",
+            "样本量增加时，分别检查这两个量如何变化。"
+          ]
+        }
+      ],
+      "sourceIds": ["authored-example"]
+    },
+    {
+      "id": "moments",
+      "title": "样本均值的期望与方差",
+      "layout": "single",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": [
+            { "text": "命题。", "bold": true },
+            { "text": "设观测独立同分布，具有共同均值和正有限方差。定义样本均值：" }
+          ]
+        },
+        {
+          "type": "equation",
+          "latex": "\\bar X_n=\\frac{1}{n}\\sum_{i=1}^{n}X_i.",
+          "alt": "样本均值等于各次观测之和除以样本量",
+          "height": 0.82,
+          "number": "(1)",
+          "sourceIds": ["authored-example"]
+        },
+        {
+          "type": "paragraph",
+          "text": "期望的线性性质给出第一式；独立性使不同观测之间的协方差为零，从而得到第二式。"
+        },
+        {
+          "type": "equation",
+          "latex": "\\operatorname{E}[\\bar X_n]=\\mu,\\qquad \\operatorname{Var}(\\bar X_n)=\\frac{\\sigma^2}{n}.",
+          "alt": "样本均值无偏，方差等于总体方差除以样本量",
+          "height": 0.82,
+          "number": "(2)",
+          "sourceIds": ["authored-example"]
+        },
+        {
+          "type": "callout",
+          "title": "解释",
+          "text": "样本均值仍以总体均值为中心。样本量增加时，方差按样本量的倒数减小；这一结论依赖上述抽样条件。"
+        }
+      ],
+      "sourceIds": ["authored-example"]
+    },
+    {
+      "id": "comparison",
+      "title": "同时比较偏差与随机波动",
+      "layout": "single",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "取总体方差为4、样本量 n=4。比较样本均值与“样本均值加1”这两种估计量。"
+        },
+        {
+          "type": "table",
+          "headers": ["估计量", "偏差", "方差", "均方误差"],
+          "rows": [["样本均值", "0", "1", "1"], ["样本均值加1", "1", "1", "2"]],
+          "sourceIds": ["authored-example"]
+        },
+        {
+          "type": "equation",
+          "latex": "\\operatorname{MSE}(T)=\\operatorname{Var}(T)+(\\operatorname{E}[T]-\\mu)^2.",
+          "alt": "均方误差等于方差与偏差平方之和",
+          "height": 0.63,
+          "sourceIds": ["authored-example"]
+        },
+        {
+          "type": "paragraph",
+          "text": [
+            { "text": "结论。", "bold": true },
+            { "text": "加上固定常数不改变方差，却引入系统偏差。表中数值是给定模型下的精确计算，不是实测性能指标。" }
+          ]
+        }
+      ],
+      "sourceIds": ["authored-example"]
+    }
+  ]
+}

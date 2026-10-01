@@ -10,7 +10,7 @@ Probe the actual export path with a fraction, a 2-by-2 matrix, an accented varia
 
 ## LaTeX source and slide integration
 
-For formula-rich work, author and retain TeX source rather than constructing glyph positions. Use a host-supported TeX-to-native route when native editing is required. Otherwise, a disclosed MathJax/LaTeX-to-SVG route can preserve typesetting in PPTX. This is guidance for host tools, not a claim that the bundled JSON exporter renders TeX.
+For formula-rich work, author and retain TeX source rather than constructing glyph positions. The bundled helper converts a supported LaTeX subset to native OMML; use a capable host tool for constructs beyond that subset. When native editing is not required, a disclosed MathJax/LaTeX-to-SVG route may also preserve typesetting in PPTX.
 
 Use real `\frac`, `pmatrix` and `aligned` constructs. This generic capability probe uses no private research material:
 
@@ -24,6 +24,40 @@ F(t) &= F(0)+tF'(0)+O(t^2).
 With a vector route, embed self-contained SVG glyph paths or definitions, not links to external fonts or glyph files. Preserve viewBox and aspect ratio. Retain TeX per equation in a sidecar or notes and provide meaningful alternate text. Verify the exported PPTX embeds vector assets; a clear preview alone does not establish SVG preservation. Some viewers use a raster fallback. Disclose native editability separately from sharpness.
 
 Use an available trusted local math engine. Install packages only when necessary in the appropriate project dependency area, not the host's bundled runtime. Avoid machine-specific paths in reusable guidance. Do not send unpublished equations to an external rendering service without authorization.
+
+## Bundled native equations
+
+The local converter parses LaTeX with Temml and writes native OMML into the PPTX. `npm ci --prefix scripts` installs the dependency; no separate TeX distribution, browser or rendering service is needed. Common fractions, roots, indices, accents, sums, integrals, matrices and aligned equations are supported. The parser and converter enforce input limits and reject unsupported syntax or structures. This is not a complete LaTeX environment, and errors do not trigger a hidden image fallback.
+
+In a compact lecture, omit `file` from an equation block:
+
+```json
+{
+  "type": "equation",
+  "latex": "\\bar X_n=\\frac{1}{n}\\sum_{i=1}^{n}X_i",
+  "alt": "The sample mean is the sum of observations divided by sample size",
+  "height": 0.82,
+  "sourceIds": ["authored-example"]
+}
+```
+
+Use a declared source ID and reserve enough vertical space for the full formula. The `latex` is retained in the block's speaker notes. A lecture's `mathFontFace` selects the default font for standalone, inline and table equations, defaulting to Cambria Math. An individual math run can override it with `fontFace`. Use another installed math family only after verifying it in the target application: STIX Two Math produced layout problems in the tested WPS installation. Fonts are not bundled or embedded.
+
+The free-position contract also supports `type:"math"` elements and inline math inside text runs:
+
+```json
+[
+  { "text": "Assume " },
+  { "latex": "n>0" },
+  { "text": " observations." }
+]
+```
+
+Free-position inline math defaults to Cambria Math; lecture inline math inherits the lecture's `mathFontFace`. An individual run's optional `fontFace` overrides either default. Retain the JSON source, and add source TeX to notes when using inline runs or free-position math because those routes do not add it automatically. Full field definitions are in [tooling.md](tooling.md).
+
+An equation block with `file` uses its supplied PNG/JPEG instead. Its LaTeX remains in notes, but that text does not regenerate or verify the image. Revise both when changing a formula. This compatibility mode is visibly sharp when given a good asset, but is not a native editable equation.
+
+Native OMML output has been checked in **WPS on macOS** for display and double-click entry into the equation tools. **Microsoft PowerPoint has not been physically tested.** Check both display and editing in the intended target application before claiming compatibility. artifact-tool previews do not completely support inline native equations or aligned equation arrays (`eqArr`); a missing preview object is not sufficient evidence that the PPTX lacks the equation, and a successful package check does not prove good rendering.
 
 ## Symbol consistency
 

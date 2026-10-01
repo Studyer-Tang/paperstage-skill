@@ -22,7 +22,7 @@ For Chinese text start with a readable sans-serif family such as Source Han Sans
 
 Default to white/near-white, charcoal text and restrained semantic accents. A symbol should keep its color across formulas, figures and captions; also distinguish entities with labels or line styles. Theorem emphasis can be a thin rule or lightly tinted statement area. Do not assign a new palette to every chapter simply for variety. Dark backgrounds and full-bleed color need an explicit/reference-supported purpose.
 
-For `lecture-blue`, follow its more specific contract: black body text, navy titles and triangular bullets, plain statement labels, and optional square callouts with a navy heading. Keep the default font portable; CJK font overrides need a fresh render to catch changed metrics. Do not transplant a source author's footer or claim a font substitution is an exact match.
+For `lecture-blue`, follow its more specific contract: black body text, navy titles and triangular bullets, plain statement labels, and optional square callouts with a navy heading. Keep the default font portable; CJK font overrides need a fresh render to catch changed metrics. For a new reusable template, use original example content and its own footer. For a user-authorized faithful conversion, preserve the source author's attribution and copyright in the private output. Do not claim a font substitution is an exact match.
 
 For charts retain native data and units. For image-based evidence retain the original, label its source, and avoid cropping out legends or caveats. For tables prefer readable columns over compressing a paper-sized table onto a slide.
 

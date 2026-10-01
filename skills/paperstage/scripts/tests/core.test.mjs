@@ -21,10 +21,19 @@ test('chart data shape checked before export',async()=>{const d=fresh();d.slides
 test('outside bounds prevents export',async()=>{const d=fresh();d.slides[0].elements[0].x=13;await assert.rejects(exportDeck(d,here),/outside slide/);});
 test('crowded content raises warning and never truncates',async()=>{const d=fresh();const e=d.slides[0].elements[0];e.text='Long text '.repeat(80);e.h=.1;assert.match(validateDeck(d).warnings.join(),/overflow/);const {buffer}=await exportDeck(d,here);const z=await JSZip.loadAsync(buffer);assert.ok((await z.file('ppt/slides/slide1.xml').async('string')).includes(e.text));});
 test('text wrapping counts each explicit CJK line separately',()=>{
-  const d=fresh();d.slides[0].elements=[{id:'body',type:'text',x:1,y:1,w:2,h:1.3,size:24,text:'统计推断方法论\n统计推断方法论'}];
+  const d=fresh();d.slides[0].elements=[{id:'body',type:'text',x:1,y:1,w:2.1,h:1.3,size:24,text:'统计推断方法论\n统计推断方法论'}];
   assert.match(validateDeck(d).warnings.join(),/possible text overflow/);
   d.slides[0].elements[0].text='统计推断方法\n统计推断方法';
   assert.doesNotMatch(validateDeck(d).warnings.join(),/possible text overflow/);
+});
+test('CJK validation reports unbreakable horizontal overflow and accounts for bold wrapping',()=>{
+  const d=fresh(),e={id:'body',type:'text',x:.25,y:1,w:2,h:4,size:22,text:'中文'+'A'.repeat(80)};
+  d.slides[0].elements=[e];
+  assert.match(validateDeck(d).warnings.join(),/text may exceed its width/);
+  e.text='中文说明';assert.doesNotMatch(validateDeck(d).warnings.join(),/text may exceed its width/);
+  Object.assign(e,{w:12.833333,h:.61,size:30.4,text:'统'.repeat(29),bold:true});
+  assert.match(validateDeck(d).warnings.join(),/possible text overflow/);
+  e.bold=false;assert.doesNotMatch(validateDeck(d).warnings.join(),/possible text overflow/);
 });
 test('rich text is strict and shares the plain text length limit',()=>{
   const d=fresh(),e=d.slides[0].elements[0];
@@ -211,4 +220,11 @@ test('CLI refuses overwrite',async t=>{
   await fs.writeFile(spec,JSON.stringify(fresh()));await fs.writeFile(out,'original');
   const p=spawnSync(process.execPath,[path.resolve(here,'../cli.mjs'),'export',spec,out],{encoding:'utf8'});
   assert.equal(p.status,1);assert.equal(await fs.readFile(out,'utf8'),'original');
+});
+
+test('omitted theme resolves usable defaults before minimal native export',async()=>{
+  const input={title:'Defaults',slides:[{id:'one',title:'Defaults',elements:[{id:'text',type:'text',text:'Plain text',x:1,y:1,w:5,h:1}]}]};
+  const {deck,errors}=validateDeck(input);
+  assert.deepEqual(errors,[]);assert.equal(deck.theme.fontFace,'Arial');assert.equal(deck.theme.ink,'#1B2434');
+  const {buffer}=await exportDeck(input,here);assert.ok(buffer.length>0);
 });
