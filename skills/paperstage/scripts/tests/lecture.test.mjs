@@ -33,6 +33,18 @@ test('lecture rejects missing content, overlong titles and overflow without shri
   assert.equal(crowded.slides[0].density,undefined);
 });
 
+test('bold CJK titles are checked at their rendered width and heading labels reserve wrapped height',()=>{
+  const input=fixture();input.slides[0].title='统'.repeat(29);
+  assert.throws(()=>compileLecture(input),/title is too long/);
+  input.slides[0].title='统'.repeat(28);
+  input.slides[0].blocks=[{type:'heading',text:'统'.repeat(37)},{type:'callout',title:'统'.repeat(36),text:'解释'}];
+  const elements=compileLecture(input).slides[0].elements;
+  assert.ok(elements.find(e=>e.id==='block-1').h>.8,'wrapped bold heading needs two lines');
+  const label=elements.find(e=>e.id==='block-2-label'),body=elements.find(e=>e.id==='block-2-text');
+  assert.ok(label.h>.8,'wrapped bold callout label needs two lines');
+  assert.ok(body.y>label.y+label.h,'callout body must follow the complete label');
+});
+
 test('columns leave footers clear and preserve two independent content streams',()=>{
   const input=fixture();input.slides=[{
     id:'columns',title:'定义与例子',layout:'columns',density:'dense',sourceIds:['example'],
@@ -59,6 +71,21 @@ test('rich lecture text retains explicit run styling and bullet content',()=>{
   assert.equal(rich.length,2);rich.forEach(e=>assert.deepEqual(e.text,runs));
   assert.equal(elements.filter(e=>e.text==='▸').length,2);
   assert.ok(elements.some(e=>e.text==='检查模型假设'));
+});
+
+test('lecture math font reaches every inline text route while explicit fonts remain unchanged',()=>{
+  const input=fixture(),runs=[{text:'Value '},{latex:'x'},{latex:'y',fontFace:'Cambria Math'}];
+  input.mathFontFace='STIX Two Math';
+  input.slides=[slide('single',{blocks:[{type:'heading',text:runs},{type:'paragraph',text:runs},{type:'bullets',items:[runs]},{type:'callout',title:'Remark',text:runs}]}),
+    {id:'columns',title:'Columns',layout:'columns',lead:runs,left:[{type:'paragraph',text:runs}],right:[{type:'paragraph',text:runs}]}];
+  const original=structuredClone(input),deck=compileLecture(input);
+  const rich=deck.slides.flatMap(s=>s.elements).filter(e=>e.type==='text'&&Array.isArray(e.text));
+  assert.equal(rich.length,7);
+  for(const e of rich) {
+    assert.equal(e.text[1].fontFace,'STIX Two Math');assert.equal(e.text[2].fontFace,'Cambria Math');
+    assert.equal(e.text[0].fontFace,undefined);
+  }
+  assert.deepEqual(input,original);
 });
 
 test('equations preserve TeX, evidence and editing limitations in slide notes',()=>{
