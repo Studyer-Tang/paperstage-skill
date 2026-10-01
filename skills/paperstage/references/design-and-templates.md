@@ -11,6 +11,8 @@ Exact template route: use a host native importer, edit a copy, reuse actual plac
 
 Brand route: capture colors, fonts and institution/footer text in a theme JSON. Use an authorized original PNG/JPEG logo with its aspect ratio preserved. Generic red/blue presets are not official university templates. No real institutional assets ship with this project.
 
+Lecture route: when the task is teaching or mathematical course notes and no visual reference is supplied, use [lecture-style.md](lecture-style.md) and `assets/themes/lecture-blue.json`. This provides a restrained white-and-blue baseline, not an imported PPTX master. With a supplied PDF, compare its actual page ratio, font scale, spacing, and page types before reusing or adjusting the preset. A PDF reference guides reconstruction; it does not supply an editable slide master.
+
 ## Compose for the evidence
 Read [academic-patterns.md](academic-patterns.md) for compositions and [mathematics.md](mathematics.md) for formula-rich work. Use a light academic canvas with stable title/body/caption positions. Scientific relationships determine composition: definition/example, equations/model, aligned derivation, or controlled comparison. Do not make every page artificially sparse; preserve the assumptions needed to understand the result.
 
@@ -19,6 +21,8 @@ Record audience, duration, slide size, output/editability, text/math fonts, size
 For Chinese text start with a readable sans-serif family such as Source Han Sans/Noto Sans CJK SC or a confirmed installed equivalent. Pair it with a coherent math family/engine. Serif Chinese headings are an option supported by a reference or user request, not an automatic mark of scholarship. Avoid four unrelated fonts; compare actual baselines and apparent sizes.
 
 Default to white/near-white, charcoal text and restrained semantic accents. A symbol should keep its color across formulas, figures and captions; also distinguish entities with labels or line styles. Theorem emphasis can be a thin rule or lightly tinted statement area. Do not assign a new palette to every chapter simply for variety. Dark backgrounds and full-bleed color need an explicit/reference-supported purpose.
+
+For `lecture-blue`, follow its more specific contract: black body text, navy titles and triangular bullets, plain statement labels, and optional square callouts with a navy heading. Keep the default font portable; CJK font overrides need a fresh render to catch changed metrics. Do not transplant a source author's footer or claim a font substitution is an exact match.
 
 For charts retain native data and units. For image-based evidence retain the original, label its source, and avoid cropping out legends or caveats. For tables prefer readable columns over compressing a paper-sized table onto a slide.
 

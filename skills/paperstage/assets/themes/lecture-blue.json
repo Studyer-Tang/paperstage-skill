@@ -1,0 +1,8 @@
+{
+  "name": "Lecture blue",
+  "fontFace": "Arial",
+  "primary": "#1F4E79",
+  "ink": "#000000",
+  "background": "#FFFFFF",
+  "chartColors": ["#1F4E79", "#606060", "#A23B33"]
+}

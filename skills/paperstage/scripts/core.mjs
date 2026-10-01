@@ -11,9 +11,12 @@ const hex = z.string().regex(/^#[0-9a-fA-F]{6}$/);
 const label = z.string().min(1).max(200);
 const box = { x:z.number().nonnegative(), y:z.number().nonnegative(), w:z.number().positive(), h:z.number().positive() };
 const shared = { id:label, ...box };
-const text = z.strictObject({ ...shared, type:z.literal('text'), text:z.string().min(1).max(5000), size:z.number().min(8).max(96).default(22), bold:z.boolean().default(false), color:hex.optional(), align:z.enum(['left','center','right']).default('left') });
+const run = z.strictObject({ text:z.string().min(1).max(5000), bold:z.boolean().optional(), italic:z.boolean().optional(), color:hex.optional(), fontFace:label.optional(), breakLine:z.boolean().optional() });
+export const TextContentSchema = z.union([z.string().min(1).max(5000),z.array(run).min(1).max(200).refine(runs=>runs.reduce((n,r)=>n+r.text.length,0)<=5000,'Text exceeds 5,000 characters')]);
+const text = z.strictObject({ ...shared, type:z.literal('text'), text:TextContentSchema, size:z.number().min(8).max(96).default(22), bold:z.boolean().default(false), italic:z.boolean().default(false), fontFace:label.optional(), color:hex.optional(), align:z.enum(['left','center','right']).default('left') });
+const rect = z.strictObject({ ...shared, type:z.literal('rect'), fill:hex, line:z.strictObject({color:hex,width:z.number().positive().max(10).default(.75)}).optional() });
 const chart = z.strictObject({ ...shared, type:z.literal('chart'), chartType:z.enum(['bar','line']), labels:z.array(label).min(1).max(30), series:z.array(z.strictObject({name:label,values:z.array(z.number().finite()).min(1).max(30)})).min(1).max(8), unit:z.string().max(80).default(''), sourceIds:z.array(label).min(1) });
-const table = z.strictObject({ ...shared, type:z.literal('table'), headers:z.array(label).min(1).max(10), rows:z.array(z.array(z.string().max(300))).min(1).max(30), size:z.number().min(12).max(32).default(18), sourceIds:z.array(label).min(1) });
+const table = z.strictObject({ ...shared, type:z.literal('table'), headers:z.array(label).min(1).max(10), rows:z.array(z.array(z.string().max(300))).min(1).max(30), size:z.number().min(12).max(32).default(18), style:z.enum(['grid','three-line']).default('grid'), rowHeights:z.array(z.number().min(.05).max(20)).min(1).max(31).optional(), sourceIds:z.array(label).min(1) });
 const image = z.strictObject({ ...shared, type:z.literal('image'), file:label, alt:label, sourceIds:z.array(label).min(1) });
 export const ThemeSchema = z.strictObject({
   name:label.default('Academic blue'), institution:z.string().max(120).default(''), fontFace:label.default('Arial'),
@@ -27,7 +30,7 @@ export const DeckSchema = z.strictObject({
   sources:z.array(z.strictObject({ id:label, document:label, locator:label, text:z.string().min(1).max(16000) })).max(2000).default([]),
   slides:z.array(z.strictObject({
     id:label, title:label, notes:z.string().max(30000).default(''), sourceIds:z.array(label).default([]),
-    elements:z.array(z.discriminatedUnion('type',[text,chart,table,image])).min(1).max(80)
+    elements:z.array(z.discriminatedUnion('type',[text,rect,chart,table,image])).min(1).max(80)
   })).min(1).max(100)
 });
 
@@ -36,6 +39,16 @@ function luminance(c) {
   return .2126*v[0]+.7152*v[1]+.0722*v[2];
 }
 const contrast=(a,b)=>{ const v=[luminance(a),luminance(b)].sort((a,b)=>b-a);return(v[0]+.05)/(v[1]+.05); };
+const contains=(a,b)=>a.x<=b.x&&a.y<=b.y&&a.x+a.w>=b.x+b.w&&a.y+a.h>=b.y+b.h;
+export function estimatedTextLines(content,width,size) {
+  const capacity=Math.max(1,width*72/size);
+  const plain=typeof content==='string'?content:content.map(r=>r.text+(r.breakLine?'\n':'')).join('');
+  // Each explicit paragraph wraps separately. Combining marks add no width.
+  return plain.replaceAll('\r\n','\n').split('\n').reduce((sum,line)=>{
+    const units=Array.from(line).reduce((n,c)=>n+(/\p{Mark}/u.test(c)?0:/[^\u0000-\u00ff]/.test(c)?1:.55),0);
+    return sum+Math.max(1,Math.ceil(units/capacity));
+  },0);
+}
 export function validateDeck(input) {
   const deck=DeckSchema.parse(input), errors=[], warnings=[], ids=new Set(), sources=new Set();
   for(const s of deck.sources) { if(sources.has(s.id)) errors.push('Duplicate source ID: '+s.id); sources.add(s.id); }
@@ -47,26 +60,34 @@ export function validateDeck(input) {
     checkRefs(slide.sourceIds,slide.id);
     if(!slide.sourceIds.length)warnings.push(slide.id+': no slide-level evidence (acceptable for non-factual setup)');
     const elementIds=new Set();
-    for(const e of slide.elements) {
+    for(const [index,e] of slide.elements.entries()) {
       const where=slide.id+'/'+e.id;
       if(elementIds.has(e.id))errors.push(where+': duplicate element ID');elementIds.add(e.id);
       inBounds(e,where);
       if(e.sourceIds)checkRefs(e.sourceIds,where);
       if(e.type==='text') {
-        const units=Array.from(e.text).reduce((n,c)=>n+(/[^\u0000-\u00ff]/.test(c)?1:.55),0);
-        const lines=Math.max(e.text.split('\n').length,Math.ceil(units/Math.max(1,e.w*72/e.size)));
-        if(lines*e.size*1.25>e.h*72)warnings.push(where+': possible text overflow; render and inspect');
-        if(contrast(e.color??deck.theme.ink,deck.theme.background)<4.5)warnings.push(where+': text contrast below 4.5:1');
+        if(estimatedTextLines(e.text,e.w,e.size)*e.size*1.25>e.h*72)warnings.push(where+': possible text overflow; render and inspect');
+        const background=slide.elements.slice(0,index).findLast(r=>r.type==='rect'&&contains(r,e))?.fill??deck.theme.background;
+        const colors=typeof e.text==='string'?[e.color??deck.theme.ink]:e.text.map(r=>r.color??e.color??deck.theme.ink);
+        if(colors.some(color=>contrast(color,background)<4.5))warnings.push(where+': text contrast below 4.5:1');
       }
       if(e.type==='chart'&&e.series.some(s=>s.values.length!==e.labels.length))errors.push(where+': label/value count mismatch');
       if(e.type==='table') {
         if(e.rows.some(r=>r.length!==e.headers.length))errors.push(where+': non-rectangular table');
-        if((e.rows.length+1)*e.size*1.8>e.h*72)warnings.push(where+': table may exceed its height');
-        if(e.rows.flat().concat(e.headers).some(t=>Array.from(t).length*e.size*.6>e.w*72/e.headers.length))warnings.push(where+': table cell may wrap; inspect rendered row heights');
+        if(e.rowHeights) {
+          if(e.rowHeights.length!==e.rows.length+1)errors.push(where+': rowHeights must include the header and every data row');
+          if(e.rowHeights.reduce((sum,h)=>sum+h,0)>e.h+.001)errors.push(where+': rowHeights exceed the table height');
+          const cellWidth=e.w/e.headers.length-.16;
+          if([e.headers,...e.rows].some((row,i)=>row.some(t=>estimatedTextLines(t,cellWidth,e.size)*e.size*1.25/72+.16>(e.rowHeights[i]??0)+.001)))warnings.push(where+': table row may exceed its height; render and inspect');
+        } else {
+          if((e.rows.length+1)*e.size*1.8>e.h*72)warnings.push(where+': table may exceed its height');
+          if(e.rows.flat().concat(e.headers).some(t=>Array.from(t).length*e.size*.6>e.w*72/e.headers.length))warnings.push(where+': table cell may wrap; inspect rendered row heights');
+        }
       }
     }
     for(let i=0;i<slide.elements.length;i++)for(let j=i+1;j<slide.elements.length;j++){
       const a=slide.elements[i],b=slide.elements[j];
+      if(a.type==='rect'&&contains(a,b))continue;
       if(Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x)>.02&&Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y)>.02)
         warnings.push(slide.id+': overlapping boxes '+a.id+' / '+b.id+' (review intended layering)');
     }
@@ -159,7 +180,13 @@ export async function exportDeck(input,base) {
     const slide=pptx.addSlide();slide.background={color:col(deck.theme.background)};
     for(const e of s.elements) {
       const pos={x:e.x,y:e.y,w:e.w,h:e.h,objectName:e.id};
-      if(e.type==='text')slide.addText(e.text,{...pos,fontFace:deck.theme.fontFace,fontSize:e.size,bold:e.bold,color:col(e.color??deck.theme.ink),align:e.align,margin:0,valign:'top',breakLine:false});
+      if(e.type==='text') {
+        const rich=Array.isArray(e.text);
+        // Resolve booleans per run: PptxGenJS otherwise replaces false with the box default.
+        const content=rich?e.text.map(({text,color,...options})=>({text,options:{...options,bold:options.bold??e.bold,italic:options.italic??e.italic,...(color?{color:col(color)}:{})}})):e.text;
+        slide.addText(content,{...pos,fontFace:e.fontFace??deck.theme.fontFace,fontSize:e.size,bold:rich?false:e.bold,italic:rich?false:e.italic,color:col(e.color??deck.theme.ink),align:e.align,margin:0,valign:'top',breakLine:false});
+      }
+      if(e.type==='rect')slide.addShape(pptx.ShapeType.rect,{...pos,fill:{color:col(e.fill)},line:e.line?{color:col(e.line.color),width:e.line.width}:{color:col(e.fill),transparency:100}});
       if(e.type==='image') {const data=await raster(e.file,base);slide.addImage({data,...contain(data,e),altText:e.alt,objectName:e.id});}
       if(e.type==='chart')slide.addChart(pptx.ChartType[e.chartType],e.series.map(v=>({name:v.name,labels:e.labels,values:v.values})),{
         ...pos,chartColors:deck.theme.chartColors.map(col),showLegend:e.series.length>1,legendFontSize:12,
@@ -167,20 +194,30 @@ export async function exportDeck(input,base) {
         showValue:false,showCatName:false,showTitle:false,showBorder:false,
         showValueTitle:Boolean(e.unit),valAxisTitle:e.unit,valAxisTitleFontSize:12
       });
-      if(e.type==='table')slide.addTable([e.headers.map(text=>({text,options:{bold:true,color:col(deck.theme.primary)}})),...e.rows],{
-        ...pos,fontFace:deck.theme.fontFace,fontSize:e.size,color:col(deck.theme.ink),margin:.08,border:{pt:.5,color:'D6DCE4'},
-        colW:Array(e.headers.length).fill(e.w/e.headers.length),rowH:e.h/(e.rows.length+1),autoPage:false
-      });
+      if(e.type==='table') {
+        const rows=[e.headers,...e.rows].map((row,i)=>row.map(text=>({text,options:{
+          ...(i===0?{bold:true,color:col(deck.theme.primary)}:{}),
+          ...(e.style==='three-line'?{fill:col(deck.theme.background),border:[i===0?1:0,0,i===0?.75:i===e.rows.length?1:0,0].map(pt=>({type:pt?'solid':'none',pt,color:col(deck.theme.ink)}))}:{})
+        }})));
+        slide.addTable(rows,{
+          ...pos,fontFace:deck.theme.fontFace,fontSize:e.size,color:col(deck.theme.ink),margin:.08,border:{pt:.5,color:'D6DCE4'},
+          colW:Array(e.headers.length).fill(e.w/e.headers.length),rowH:e.rowHeights??e.h/(e.rows.length+1),autoPage:false
+        });
+      }
     }
     if(deck.theme.logo){const e=deck.theme.logo,data=await raster(e.file,base);slide.addImage({data,...contain(data,e),altText:deck.theme.institution+' logo'});}
     if(deck.theme.footer)slide.addText(deck.theme.footer,{x:.4,y:deck.height-.32,w:deck.width-.8,h:.2,fontSize:9,fontFace:deck.theme.fontFace,color:col(deck.theme.ink),margin:0});
     const refs=[...new Set([...s.sourceIds,...s.elements.flatMap(e=>e.sourceIds??[])])];
     slide.addNotes([s.notes,...refs.map(id=>{const r=sourceMap.get(id);return '['+id+'] '+r.document+'; '+r.locator+'\n'+r.text;})].join('\n\n'));
   }
-  const raw=await pptx.write({outputType:'nodebuffer'});
-  if(deck.transition==='none')return {buffer:raw,warnings};
-  const zip=await JSZip.loadAsync(raw);
-  for(const name of Object.keys(zip.files).filter(n=>/^ppt\/slides\/slide\d+\.xml$/.test(n))){
+  // Compress once after fixing the generated manifest and adding optional transitions.
+  const zip=await JSZip.loadAsync(await pptx.write({outputType:'nodebuffer',compression:false}));
+  const types=await zip.file('[Content_Types].xml').async('string');
+  // PptxGenJS 4.0.1 declares one master per slide but writes only master 1.
+  // Remove only those surplus declarations in our newly generated package.
+  zip.file('[Content_Types].xml',types.replace(/<Override PartName="(\/ppt\/slideMasters\/slideMaster(\d+)\.xml)" ContentType="application\/vnd\.openxmlformats-officedocument\.presentationml\.slideMaster\+xml"\/>/g,
+    (entry,part,index)=>Number(index)>1&&!zip.file(part.slice(1))?'':entry));
+  if(deck.transition==='fade')for(const name of Object.keys(zip.files).filter(n=>/^ppt\/slides\/slide\d+\.xml$/.test(n))){
     const xml=await zip.file(name).async('string');
     // PptxGenJS-created slides have no existing transition/timing. Insert after clrMapOvr,
     // not before an arbitrary nested extLst.
@@ -228,6 +265,16 @@ export async function extract(file) {
 }
 export async function inspectPptx(file) {
   const zip=await safeZip(await readLimited(file)), names=Object.keys(zip.files);
+  const contentTypes=await zip.file('[Content_Types].xml')?.async('string');
+  if(!contentTypes)throw Error('Missing [Content_Types].xml');
+  parseXml(contentTypes);
+  const types=new XMLParser({ignoreAttributes:false,processEntities:false,removeNSPrefix:true}).parse(contentTypes).Types;
+  if(!types)throw Error('Invalid content types manifest');
+  const overrides=types.Override??[];
+  for(const entry of Array.isArray(overrides)?overrides:[overrides]) {
+    const part=entry['@_PartName'];
+    if(typeof part!=='string'||!part.startsWith('/')||!zip.file(part.slice(1)))throw Error('Broken content-type override: '+part);
+  }
   if(names.some(n=>/vbaProject|activeX/i.test(n)||(/embeddings\/./i.test(n)&&!n.endsWith('.xlsx'))))throw Error('Active or unsupported embedded content is not supported');
   for(const n of names.filter(n=>/embeddings\/.+\.xlsx$/.test(n))){
     const workbook=await safeZip(await zip.file(n).async('nodebuffer'));
@@ -257,6 +304,6 @@ export async function inspectPptx(file) {
   }
   return {dimensions:p?.['p:sldSz']??null,slides,externalRelationships:external,
     themes:await Promise.all(names.filter(n=>/^ppt\/theme\/theme\d+\.xml$/.test(n)).map(async n=>({part:n,xml:await zip.file(n).async('string')}))),
-    checks:{xmlFiles:xmlFiles.length,internalRelationships:'resolved',visualReview:'not performed'},
+    checks:{xmlFiles:xmlFiles.length,internalRelationships:'resolved',contentTypeOverrides:'resolved',visualReview:'not performed'},
     warnings:['Text and placeholders are hints, not a full template rendering. No external relationship was fetched.']};
 }
