@@ -2,6 +2,8 @@
 
 Derived from inspected research presentations and mathematical teaching in [reference-studies.md](reference-studies.md). Select by argument, not a fixed sequence. A pattern is a relationship between evidence and explanation, not a stock graphic.
 
+For lectures and course notes without another reference, apply the geometry and typography in [lecture-style.md](lecture-style.md). A chapter can open with its question and a compact mathematical construction instead of a separate title page. This teaching mode does not replace the research identity and evidence patterns below.
+
 ## Title and research identity
 
 Show the complete research subject, presenter, affiliation and occasion when supplied. Use a small authentic logo only if authorized. Make the title readable in natural lines. A striking constant alone is not an informative research title. Do not invent supervisors, affiliations or credentials. Use the user's public naming preference.
@@ -33,6 +35,8 @@ Preserve a base composition across steps. Highlight the changing term or relatio
 ## Theorem and proof sketch
 
 Make assumptions, quantified conclusion, and main proof idea identifiable. A theorem can occupy a quiet, lightly emphasized area with its construction or crucial inequality below. Align relations and annotate the pivotal step. Explain what each lemma supplies. Preserve remainder terms and boundary conditions.
+
+In the compact lecture profile, start with a bold statement label in normal body text, then a centered formula and interpretation. Reserve the navy-headed callout for a consequence or connection that deserves emphasis; do not box every definition and theorem. Use a three-line table or aligned columns when the contrast is the scientific point.
 
 A proof need not fit on one page. Move long algebra to an appendix only when consistent with the request. Call a sketch a sketch. Attribute unverified breakthrough claims instead of confirming them through assertive titles.
 

@@ -1,0 +1,338 @@
+{
+  "title": "Sample means and estimation error",
+  "course": "Mathematical Statistics · Worked examples",
+  "fontFace": "Arial",
+  "sources": [
+    {
+      "id": "worked-example",
+      "document": "PaperStage authored teaching example",
+      "locator": "Assumptions and calculations",
+      "text": "Original illustrative derivation: independent identically distributed observations with mean mu and finite variance sigma squared. E(sample mean)=mu and Var(sample mean)=sigma squared/n. T2=sample mean+1 has bias1 and the same variance. For the exact arithmetic table choose mu=10,sigma squared=4,n=4: biases0/1, variances1/1,MSE1/2. This is a specified teaching model, not measured experimental data. Appendix: two observations of common positive finite variance sigma squared, correlation rho in[-1,1]."
+    }
+  ],
+  "slides": [
+    {
+      "id": "overview",
+      "title": "Sample means and estimation error",
+      "layout": "columns",
+      "lead": "Averaging converts several observations into one estimate. We study what changes when the sample grows.",
+      "left": [
+        {
+          "type": "heading",
+          "text": "Construction"
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Specify the population mean and variance.",
+            "Form the sample mean from independent observations.",
+            "State the assumptions before calculating."
+          ]
+        }
+      ],
+      "right": [
+        {
+          "type": "heading",
+          "text": "Accuracy"
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Separate systematic bias from random variation.",
+            "Track how variance changes with sample size.",
+            "Check what fails when observations are correlated."
+          ]
+        }
+      ],
+      "sourceIds": [
+        "worked-example"
+      ]
+    },
+    {
+      "id": "moments",
+      "title": "The mean and variance of an average",
+      "layout": "single",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": [
+            {
+              "text": "Proposition. ",
+              "bold": true
+            },
+            {
+              "text": "Let the observations be independent and identically distributed, with finite mean and variance."
+            }
+          ]
+        },
+        {
+          "type": "equation",
+          "file": "lecture-math/mean.png",
+          "latex": "\\bar X_n=\\frac{1}{n}\\sum_{i=1}^{n}X_i,\\qquad \\mathbb{E}[\\bar X_n]=\\mu.",
+          "alt": "mean",
+          "height": 0.931,
+          "number": "(1)",
+          "sourceIds": [
+            "worked-example"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Linearity gives the expectation. Independence removes cross-covariance terms from the variance."
+        },
+        {
+          "type": "equation",
+          "file": "lecture-math/variance.png",
+          "latex": "\\operatorname{Var}(\\bar X_n)=\\frac{\\sigma^2}{n}.",
+          "alt": "variance",
+          "height": 0.738,
+          "number": "(2)",
+          "sourceIds": [
+            "worked-example"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": [
+            {
+              "text": "Interpretation. ",
+              "bold": true
+            },
+            {
+              "text": "The estimate stays centered at the population mean while its variance decreases with sample size."
+            }
+          ]
+        }
+      ],
+      "sourceIds": [
+        "worked-example"
+      ]
+    },
+    {
+      "id": "derivation",
+      "title": "Why independence matters",
+      "layout": "single",
+      "align": "top",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": [
+            {
+              "text": "Proof. ",
+              "bold": true
+            },
+            {
+              "text": "Start with the variance of the sample mean. Pull out the constant and then use independence."
+            }
+          ]
+        },
+        {
+          "type": "equation",
+          "file": "lecture-math/proof.png",
+          "latex": "\\begin{aligned}\\operatorname{Var}(\\bar X_n)&=\\frac{1}{n^2}\\operatorname{Var}\\!\\left(\\sum_{i=1}^{n}X_i\\right)\\\\[8pt]&=\\frac{1}{n^2}\\sum_{i=1}^{n}\\operatorname{Var}(X_i)\\\\[8pt]&=\\frac{n\\sigma^2}{n^2}=\\frac{\\sigma^2}{n}.\\end{aligned}",
+          "alt": "proof",
+          "height": 3.318,
+          "sourceIds": [
+            "worked-example"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "The second equality uses zero covariance between distinct observations. Without it, covariance terms remain."
+        }
+      ],
+      "sourceIds": [
+        "worked-example"
+      ]
+    },
+    {
+      "id": "comparison",
+      "title": "Two estimators of the same mean",
+      "layout": "columns",
+      "lead": "Add a fixed offset to isolate the effect of bias. Both estimators use exactly the same observations.",
+      "left": [
+        {
+          "type": "heading",
+          "text": "The sample mean"
+        },
+        {
+          "type": "equation",
+          "file": "lecture-math/unbiased.png",
+          "latex": "T_1=\\bar X_n,\\qquad \\mathbb{E}[T_1]=\\mu.",
+          "alt": "unbiased",
+          "height": 0.41,
+          "sourceIds": [
+            "worked-example"
+          ]
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Its expectation equals the target.",
+            "Its bias is zero.",
+            "Its variance decreases as the sample grows."
+          ]
+        }
+      ],
+      "right": [
+        {
+          "type": "heading",
+          "text": "A shifted sample mean"
+        },
+        {
+          "type": "equation",
+          "file": "lecture-math/shifted.png",
+          "latex": "T_2=\\bar X_n+1,\\qquad \\mathbb{E}[T_2]=\\mu+1.",
+          "alt": "shifted",
+          "height": 0.41,
+          "sourceIds": [
+            "worked-example"
+          ]
+        },
+        {
+          "type": "bullets",
+          "items": [
+            "Its expectation is one unit above the target.",
+            "Its bias is one.",
+            "Its variance is unchanged by the offset."
+          ]
+        }
+      ],
+      "sourceIds": [
+        "worked-example"
+      ]
+    },
+    {
+      "id": "table",
+      "title": "Bias and variability in a specified model",
+      "layout": "single",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Take a population with mean 10 and variance 4. Use four independent observations in each sample."
+        },
+        {
+          "type": "table",
+          "headers": [
+            "Estimator",
+            "Bias",
+            "Variance",
+            "MSE"
+          ],
+          "rows": [
+            [
+              "Sample mean",
+              "0",
+              "1",
+              "1"
+            ],
+            [
+              "Sample mean + 1",
+              "1",
+              "1",
+              "2"
+            ]
+          ],
+          "sourceIds": [
+            "worked-example"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": [
+            {
+              "text": "Exact calculation. ",
+              "bold": true
+            },
+            {
+              "text": "The variance is 4 / 4 = 1. Adding one changes the squared bias from zero to one."
+            }
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "These values follow from the stated assumptions; they are not empirical benchmark results."
+        }
+      ],
+      "sourceIds": [
+        "worked-example"
+      ]
+    },
+    {
+      "id": "mse",
+      "title": "Mean squared error combines two effects",
+      "layout": "single",
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "For an estimator with finite second moment, decompose its error into a centered random part and a constant bias."
+        },
+        {
+          "type": "equation",
+          "file": "lecture-math/mse.png",
+          "latex": "\\begin{aligned}\\mathbb{E}[(T-\\mu)^2]&=\\operatorname{Var}(T)+\\bigl(\\mathbb{E}[T]-\\mu\\bigr)^2.\\end{aligned}",
+          "alt": "mse",
+          "height": 0.478,
+          "sourceIds": [
+            "worked-example"
+          ]
+        },
+        {
+          "type": "callout",
+          "title": "Consequence",
+          "text": "An estimator can have small variance and still miss the target systematically. Report both bias and variability when comparing estimates."
+        },
+        {
+          "type": "paragraph",
+          "text": "In the worked example, the fixed offset increases mean squared error by one."
+        }
+      ],
+      "sourceIds": [
+        "worked-example"
+      ]
+    },
+    {
+      "id": "appendix",
+      "title": "Appendix: correlated observations",
+      "layout": "single",
+      "appendix": true,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "For two observations with the same mean and positive finite variance, write their covariance matrix using the correlation coefficient."
+        },
+        {
+          "type": "equation",
+          "file": "lecture-math/covariance.png",
+          "latex": "\\Sigma=\\sigma^2\\begin{pmatrix}1&\\rho\\\\\\rho&1\\end{pmatrix},\\qquad -1\\leq\\rho\\leq1.",
+          "alt": "covariance",
+          "height": 0.8,
+          "sourceIds": [
+            "worked-example"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "The variance of their average now includes the cross-covariance term:"
+        },
+        {
+          "type": "equation",
+          "file": "lecture-math/correlated.png",
+          "latex": "\\operatorname{Var}\\!\\left(\\frac{X_1+X_2}{2}\\right)=\\frac{\\sigma^2(1+\\rho)}{2}.",
+          "alt": "correlated",
+          "height": 0.83,
+          "sourceIds": [
+            "worked-example"
+          ]
+        },
+        {
+          "type": "paragraph",
+          "text": "Zero correlation recovers the independent-sample variance formula for two observations. Positive correlation increases the variance."
+        }
+      ],
+      "sourceIds": [
+        "worked-example"
+      ]
+    }
+  ]
+}

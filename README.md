@@ -2,6 +2,10 @@
 
 A formal academic presentation **skill for your existing AI assistant**, with small local PPTX tools.
 
+![Lecture blue: theorem, derivation, comparison and three-line table](docs/lecture-preview.png)
+
+**New in 0.3:** a runnable compact lecture preset: white 16:9 slides, navy titles, mathematical displays, editable prose and three-line tables, plus automatic main/appendix numbering. [View the input example](skills/paperstage/assets/examples/lecture.json) and [style contract](skills/paperstage/references/lecture-style.md).
+
 Give the AI a paper, research notes, or proposal and an institutional reference. The AI reads the material, builds the argument, designs the slides and reviews the output. PaperStage supplies a reusable research workflow and deterministic helpers. It does not run another model.
 
 ## 中文说明
@@ -10,7 +14,9 @@ Give the AI a paper, research notes, or proposal and an institutional reference.
 
 AI 负责理解论文、选择讲述重点、核对证据、适配机构风格并逐页审稿。脚本负责本地提取文本、检查材料结构、导出可编辑文字/图表/表格，以及简单翻页淡入。
 
-现在默认采用论文组会、研究报告与答辩风格：浅底、稳定文字层级、规范数学排版、公式与模型图配合、按研究问题组织章节。规则来自实际查看的论文报告与数学讲解，参见[案例拆解](skills/paperstage/references/reference-studies.md)。这是工作流与设计知识的提炼，不是模型训练，也不意味着照搬第三方模板。
+正式学术演示现在默认采用 `lecture-blue`：16:9 白底、深蓝标题、黑色正文、蓝色三角列表、三线表、课程页脚及自动页码。单栏、双栏、定理与推导都可紧凑编排；正文溢出会明确报错，不自动缩小或删减内容。论文组会、研究报告与答辩沿用这套视觉基准，按研究论证组织内容。用户提供的新参考样式始终优先。
+
+这套样式从参考课件的视觉规则重新实现，公开示例使用自编统计学内容，不包含原课件、作者署名或课程材料。默认 Arial 近似参考文件的 Computer Modern Sans；字体并非完全相同，也不会嵌入 PPTX。中文可指定目标电脑已安装的中文无衬线字体。
 
 不再把杂志式封面、巨大章节数字、整页换色或文字堆砌作为默认设计。复杂公式不能用空格和 Unicode 字符拼接；先检查宿主的公式能力，原生编辑不可用时明确说明。详见[学术版式](skills/paperstage/references/academic-patterns.md)与[数学排版](skills/paperstage/references/mathematics.md)。
 
@@ -20,7 +26,16 @@ AI 负责理解论文、选择讲述重点、核对证据、适配机构风格�
 
 数学公式优先保留 LaTeX 源码，按编辑要求选择原生公式或矢量公式。版式包括定义与实例并排、宽公式栏与窄说明栏、矩阵块平行对照、定理与证明线索、对齐推导与旁注。精修重点是内容关系、等号对齐、公式真实尺寸和留白。详见[版面精修](skills/paperstage/references/layout-refinement.md)。
 
-这些是供 AI 使用的工作方法，不是固定模板或自动美学评分器。矢量公式不等于 PowerPoint 原生可编辑公式，内置 JSON 导出器也不包含 TeX 渲染器。公开仓库只包含通用规则和合成测试，不包含私人评审使用的论文、PPT 或参考演示文件。
+这些是供 AI 使用的工作方法。课程模式另有可运行的版式编译器，帮助稳定几何位置。矢量公式不等于 PowerPoint 原生可编辑公式，内置 JSON 导出器也不包含 TeX 渲染器。课程示例的复杂公式为高分辨率 PNG，另附 SVG 和 LaTeX 源码；修改公式时需重新排版图片。文字、表格、提示框保持可编辑。公开仓库只包含通用规则和自编示例。
+
+生成随附的 7 页课程样张：
+
+```sh
+node skills/paperstage/scripts/cli.mjs lecture-validate skills/paperstage/assets/examples/lecture.json
+node skills/paperstage/scripts/cli.mjs lecture skills/paperstage/assets/examples/lecture.json output/lecture.pptx
+```
+
+新增课程功能不增加运行时依赖。它与自由布局模式共用导出器；不会把所有论文报告都固定成同一种版式。详细输入格式见[工具约定](skills/paperstage/references/tooling.md#compact-lecture-input)。
 
 ## Install
 
@@ -47,6 +62,7 @@ Example request:
 | Research narration, evidence ledger, claims/assumptions separation | Instructions guide the AI; they cannot guarantee scientific correctness |
 | PDF/DOCX/Markdown/text extraction | Scans need OCR; equations and figures need visual source inspection |
 | Free-position native text, charts and tables | Raster figures remain raster; complex editable equations need host tooling |
+| Compact lecture layouts, rich text, three-line tables, main/appendix page counts | Approximate text measurements require rendered review; equation images retain TeX but are not native equations |
 | Local PNG/JPEG logos, institutional colors/fonts | Included presets are generic, not official school templates |
 | Template structural inspection and exact-template workflow | Bundled exporter does not import arbitrary PPTX masters; use a capable host tool |
 | Optional slide fade | No bundled Morph or object-by-object reveal; target viewer check required |

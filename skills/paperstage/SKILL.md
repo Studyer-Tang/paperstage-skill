@@ -1,6 +1,6 @@
 ---
 name: paperstage
-description: Design research presentations from papers, notes, or institutional templates in a formal academic style, with correctly typeset mathematics, explanatory model diagrams, and source-grounded claims. Use for paper seminars, defenses, research talks, and proposals.
+description: Design academic presentations from papers, course notes, or institutional templates, with correctly typeset mathematics and source-grounded claims. Use for lectures, mathematical teaching, paper seminars, defenses, research talks, and proposals.
 ---
 
 # PaperStage
@@ -9,7 +9,10 @@ You are the author and designer. The local helpers export and inspect files; the
 
 ## Academic design, not a generic pitch deck
 
-Default to a formal research seminar: a light canvas, stable title and body hierarchy, properly typeset mathematics, explanatory scientific figures, modest source footnotes, and sections that follow the argument. This default comes from actual academic examples, not an institution's imagined branding. A user's reference or explicit style overrides it.
+The user's reference or explicit style takes priority. Otherwise, use the compact white-and-blue visual baseline in [lecture-style.md](references/lecture-style.md) for formal academic slides. It specifies typography, mathematical layouts, tables and footer placement without a decorative cover. Choose the narrative by purpose:
+
+- **Lectures, course slides, and mathematical notes:** organize definitions, worked examples, derivations and exercises in the `lecture-blue` profile.
+- **Research seminars, defenses, and proposals:** retain sections that follow the research argument, explanatory scientific figures and modest source footnotes. The same visual baseline does not require the same page sequence or bullet layout.
 
 Read [academic-patterns.md](references/academic-patterns.md) before composition. For a new visual direction, consult [reference-studies.md](references/reference-studies.md), select a relevant case, and inspect its cited pages when available. Do not call a repository award-winning or human-authored solely because of stars or an attractive thumbnail. The catalog distinguishes paper presentations, mathematical teaching, and templates.
 
@@ -35,13 +38,14 @@ Read [design-and-templates.md](references/design-and-templates.md) when choosing
 
 - Prefer a capable native slide authoring tool already available to the host, especially for existing PPTX templates, equations, intricate diagrams, or advanced animation.
 - The self-contained fallback is Node.js with PptxGenJS. Read [tooling.md](references/tooling.md) for the JSON contract and commands. It offers editable text, charts and tables with freely positioned elements, local raster assets, brand colors and simple fade transitions.
+- For the lecture profile, `node scripts/cli.mjs lecture INPUT.json OUTPUT.pptx` applies the companion layout preset. Read [lecture-style.md](references/lecture-style.md) before composing its input; a preset supplies geometry, not the mathematical argument.
 - Do not force every slide into a canned layout or downgrade a richer host tool to the fallback.
 - Strict preservation of an arbitrary PPTX master is a separate requirement. The inspector provides structural clues, not a complete visual interpretation. The fallback does not import masters. If no capable importer exists, explain that limitation and get direction before substituting a rebuilt design.
 - Complex editable mathematics and staged proofs require the host's equation/animation tooling. Never pass a screenshot off as editable mathematics.
 
 Read [mathematics.md](references/mathematics.md) for formula-rich talks. Probe equation support early: nested fractions, matrices, accents, and aligned derivations must not be approximated with spaced Unicode strings or separate bracket text boxes. If native equations are unavailable, disclose the limitation and use an agreed high-quality vector/typeset route with source, or obtain direction when native editing is essential. Do not change PPTX to PDF without permission.
 
-The bundled JSON exporter is a fallback, not the visual reference implementation of this skill. It cannot reproduce all academic patterns or complex mathematics. Use an available host authoring tool as required by that host.
+The bundled JSON exporter is a fallback. The lecture example demonstrates its supported layouts; it cannot reproduce all academic patterns or typeset new complex mathematics. Use an available host authoring tool as required by that host.
 
 ## Review and deliver
 
