@@ -169,6 +169,55 @@ test('PNG is embedded with alt text',async t=>{
   const {buffer}=await exportDeck(d,dir),z=await JSZip.loadAsync(buffer);
   assert.match(await z.file('ppt/slides/slide1.xml').async('string'),/Synthetic pixel/);
 });
+test('JPEG still embeds after bounded frame-header checks',async t=>{
+  const dir=await temporary(t);
+  // A synthetic 1x1 grayscale JPEG, generated locally rather than sourced from a paper.
+  const data=Buffer.from('/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAALCAABAAEBAREA/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/9oACAEBAAA/ACv/2Q==','base64');
+  await fs.writeFile(path.join(dir,'pixel.jpg'),data);
+  const d=fresh();d.slides[0].elements=[{id:'i',type:'image',x:1,y:1,w:2,h:1,file:'pixel.jpg',alt:'Synthetic JPEG pixel',sourceIds:['demo-1']}];
+  const {buffer}=await exportDeck(d,dir),zip=await JSZip.loadAsync(buffer);
+  const image=Object.keys(zip.files).find(name=>name.startsWith('ppt/media/')&&!zip.files[name].dir);
+  assert.deepEqual(await zip.file(image).async('nodebuffer'),data);
+  assert.match(await zip.file('ppt/slides/slide1.xml').async('string'),/Synthetic JPEG pixel/);
+});
+test('reviewed PptxGenJS import stays on the ES build without image-size',async()=>{
+  const entry=fileURLToPath(import.meta.resolve('pptxgenjs'));
+  assert.equal(path.basename(entry),'pptxgen.es.js');
+  assert.doesNotMatch(await fs.readFile(entry,'utf8'),/image-size/);
+});
+test('unsupported image parser signatures are rejected even with PNG filenames',async t=>{
+  const dir=await temporary(t);
+  // Recognized upstream formats with invalid zero-length records. Never send
+  // these synthetic buffers to image-size or an Office viewer.
+  const samples=[Buffer.from('69636e73000000106963303700000000','hex'),
+    Buffer.from('0000000c4a584c200d0a870a000000006a786c63','hex'),
+    Buffer.from('000000186674797068656963000000006d69663168656963000000006d657461','hex')];
+  for(const [index,data] of samples.entries()){
+    const file=`unsupported-${index}.png`;await fs.writeFile(path.join(dir,file),data);
+    const d=fresh();d.slides[0].elements=[{id:'i',type:'image',x:1,y:1,w:1,h:1,file,alt:'Synthetic invalid image',sourceIds:['demo-1']}];
+    await assert.rejects(exportDeck(d,dir),/Only PNG and JPEG/);
+  }
+});
+test('PNG dimensions require a complete first IHDR chunk',async t=>{
+  const dir=await temporary(t),good=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aNioAAAAASUVORK5CYII=','base64');
+  const wrongType=Buffer.from(good);wrongType.write('IDAT',12,'ascii');
+  const wrongLength=Buffer.from(good);wrongLength.writeUInt32BE(12,8);
+  for(const [index,data] of [good.subarray(0,24),wrongType,wrongLength].entries()){
+    const file=`bad-header-${index}.png`;await fs.writeFile(path.join(dir,file),data);
+    const d=fresh();d.slides[0].elements=[{id:'i',type:'image',x:1,y:1,w:1,h:1,file,alt:'Synthetic invalid header',sourceIds:['demo-1']}];
+    await assert.rejects(exportDeck(d,dir),/Invalid PNG IHDR/);
+  }
+});
+test('JPEG zero-length segments and incomplete frames fail in the bounded reader',async t=>{
+  const dir=await temporary(t);
+  const samples=[Buffer.from([255,216,255,224,0,0]),Buffer.from([255,216,255,192,0,7,8,0,1,0,1]),
+    Buffer.from([255,216,255,192,0,8,8,0,1,0,1,0])];
+  for(const [index,data] of samples.entries()){
+    const file=`bad-frame-${index}.jpg`;await fs.writeFile(path.join(dir,file),data);
+    const d=fresh();d.slides[0].elements=[{id:'i',type:'image',x:1,y:1,w:1,h:1,file,alt:'Synthetic invalid frame',sourceIds:['demo-1']}];
+    await assert.rejects(exportDeck(d,dir),/Invalid JPEG/);
+  }
+});
 test('text extraction has stable IDs, paragraph locators, no truncation',async t=>{
   const dir=await temporary(t),file=path.join(dir,'notes.md');await fs.writeFile(file,'First paragraph.\n\n'+'x'.repeat(9000));
   const a=await extract(file),b=await extract(file);

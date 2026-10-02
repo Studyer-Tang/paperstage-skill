@@ -162,7 +162,7 @@ const col=s=>s.slice(1);
 function contain(data,e) {
   const b=Buffer.from(data.split(',')[1],'base64');let width=0,height=0;
   if(data.startsWith('data:image/png')) {
-    if(b.length<24)throw Error('Invalid PNG header');
+    if(b.length<33||b.readUInt32BE(8)!==13||b.toString('ascii',12,16)!=='IHDR')throw Error('Invalid PNG IHDR header');
     width=b.readUInt32BE(16);height=b.readUInt32BE(20);
   }else {
     let at=2;
@@ -176,7 +176,7 @@ function contain(data,e) {
       const length=b.readUInt16BE(at);
       if(length<2||at+length>b.length)throw Error('Invalid JPEG segment');
       if([192,193,194,195,197,198,199,201,202,203,205,206,207].includes(marker)){
-        if(length<7)throw Error('Invalid JPEG frame');
+        if(length<8||!b[at+7]||length!==8+3*b[at+7])throw Error('Invalid JPEG frame');
         height=b.readUInt16BE(at+3);width=b.readUInt16BE(at+5);break;
       }
       at+=length;

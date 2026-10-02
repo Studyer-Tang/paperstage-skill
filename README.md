@@ -1,18 +1,18 @@
 # PaperStage
 
-A formal academic presentation **skill for your existing AI assistant**, with small local PPTX tools.
+**Editable PPTX tools for Chinese mathematics lectures and research notes**, packaged as a skill for your existing AI assistant.
 
 ![Lecture blue: theorem, derivation, comparison and three-line table](docs/lecture-preview.png)
 
 **New in 0.4:** native editable equations from LaTeX, inline math runs, and Chinese-aware text wrapping. The compact lecture preset retains white 16:9 slides, navy titles, three-line tables and automatic main/appendix numbering. [Chinese example](skills/paperstage/assets/examples/lecture-zh.json) · [Style contract](skills/paperstage/references/lecture-style.md).
 
-Give the AI a paper, research notes, or proposal and an institutional reference. The AI reads the material, builds the argument, designs the slides and reviews the output. PaperStage supplies a reusable research workflow and deterministic helpers. It does not run another model.
+The local tools turn structured input into editable text, supported native equations, charts and tables. The accompanying skill guides your AI assistant through reading source material and checking a talk; the depth and correctness of that work depend on the assistant and the supplied evidence. The public examples are original teaching samples and synthetic test data. A complete real-paper presentation and Microsoft PowerPoint acceptance have not yet been demonstrated.
 
 ## 中文说明
 
-这是供 Codex 等支持 `SKILL.md` 的 AI 使用的技能包，不是网页应用，也不要求安装本地小模型或配置另一套 API Key。
+这是面向**中文数学课件、统计学讲义和可编辑研究报告 PPTX**的小型工具包，附带供 Codex 等支持 `SKILL.md` 的 AI 使用的技能。使用本地脚本不需要另装小模型或配置另一套 API Key。
 
-AI 负责理解论文、选择讲述重点、核对证据、适配机构风格并逐页审稿。脚本负责本地提取文本、检查材料结构、导出可编辑文字、原生公式、图表和表格，以及简单翻页淡入。
+本地脚本可以提取文本、检查输入结构，导出可编辑文字、有界 LaTeX 子集的原生公式、图表和表格，以及简单翻页淡入。论文理解、讲述重点、证据核对和逐页审稿仍依赖宿主 AI 与人工复核；结构检查通过不等于论文结论正确或演示已经验收。公开样例是自编教学内容与合成数据，目前未提供完整真实论文报告案例，也未完成 Microsoft PowerPoint 实机验收。
 
 正式学术演示现在默认采用 `lecture-blue`：16:9 白底、深蓝标题、黑色正文、蓝色三角列表、三线表、课程页脚及自动页码。单栏、双栏、定理与推导都可紧凑编排；正文溢出会明确报错，不自动缩小或删减内容。论文组会、研究报告与答辩沿用这套视觉基准，按研究论证组织内容。用户提供的新参考样式始终优先。
 
