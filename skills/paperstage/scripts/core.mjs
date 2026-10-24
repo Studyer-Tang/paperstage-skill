@@ -50,7 +50,7 @@ export function estimatedTextLines(content,width,size,options={}) {
   const capacity=Math.max(1,width*72/size);
   const plain=typeof content==='string'?content:content.map(r=>(r.softBreakBefore?'\n':'')+(r.text??r.latex)+(r.breakLine?'\n':'')).join('');
   // Each explicit paragraph wraps separately. Combining marks add no width.
-  return plain.replaceAll('\r\n','\n').split('\n').reduce((sum,line)=>{
+  return plain.replace(/\r\n?/g,'\n').split('\n').reduce((sum,line)=>{
     const units=Array.from(line).reduce((n,c)=>n+(/\p{Mark}/u.test(c)?0:/[^\u0000-\u00ff]/.test(c)?1:.55),0);
     return sum+Math.max(1,Math.ceil(units/capacity));
   },0);
@@ -201,6 +201,12 @@ export async function exportDeck(input,base) {
     const renderText=(content,{width,size,fontFace=deck.theme.fontFace,mathFontFace='Cambria Math',bold=false,italic=false,color=deck.theme.ink})=>{
       let runs=typeof content==='string'?[{text:content}]:content;
       if(hasCjk(runs)&&!runs.some(r=>r.latex))runs=layoutCjkText(runs,{width,size,fontFace,bold}).runs;
+      // PptxGenJS loses newline-only runs and marks every split fragment as a
+      // paragraph end. Supply newline-free runs with explicit boundaries instead.
+      runs=runs.flatMap(run=>run.latex?[run]:run.text.split(/\r\n|\r|\n/).map((text,i,parts)=>({
+        ...run,text,breakLine:i<parts.length-1||run.breakLine,
+        softBreakBefore:i===0&&run.softBreakBefore
+      })));
       return runs.map(({text,latex,color:runColor,...options})=>({
         text:latex?equationRun(latex,{size,color:runColor??color,fontFace:options.fontFace??mathFontFace,display:false}):text,
         options:{...options,fontFace:options.fontFace??fontFace,bold:options.bold??bold,italic:options.italic??italic,color:col(runColor??color)}
